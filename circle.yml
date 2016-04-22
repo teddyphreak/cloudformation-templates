@@ -1,0 +1,17 @@
+machine:
+  timezone:
+    America/Costa_Rica
+    
+dependencies:
+  override:
+    - sudo apt-get install awscli
+  
+test:
+  override:
+    - test.sh
+    
+deployment:
+  production:
+    branch: master
+    commands:
+      - aws s3 sync --delete . s3://cftemplates.nephelai.io
