@@ -8,7 +8,7 @@ dependencies:
   
 test:
   override:
-    - test.sh
+    - sh test.sh
     
 deployment:
   production:
