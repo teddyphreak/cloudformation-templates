@@ -2,13 +2,19 @@
     "AWSTemplateFormatVersion": "2010-09-09",
     "Description": "vpc template",
     "Metadata": {},
-    "Parameters": {},
+    "Parameters": {        
+        "addressBlock": {
+            "Description": "management address block",
+            "Type": "String",
+            "Default": "172.16.0.0/24"
+        }
+    },
     "Resources": {
-        "vpc_management": {
+        "vpcManagement": {
             "Type": "AWS::EC2::VPC",
             "Properties": {
                 "CidrBlock": {
-                    "Ref": "addressblock"
+                    "Ref": "addressBlock"
                 },
                 "Tags": [
                     "vpc",
@@ -16,10 +22,10 @@
                 ]
             }
         },
-        "sg_bastion": {
+        "sgBastion": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
-                "GroupDescription": "security group for bastion hosts",
+                "GroupDescription": "-",
                 "SecurityGroupIngress": [
                     {
                         "IpProtocol": "tcp",
@@ -35,7 +41,7 @@
                     }
                 ],
                 "VpcId": {
-                    "Ref": "vpc"
+                    "Ref": "vpcManagement"
                 },
                 "Tags": [
                     "vpc",
@@ -43,17 +49,17 @@
                 ]
             }
         },
-        "sg_web": {
+        "sgWeb": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
-                "GroupDescription": "security group for web hosts",
+                "GroupDescription": "-",
                 "SecurityGroupIngress": [
                     {
                         "IpProtocol": "tcp",
                         "FromPort": "22",
                         "ToPort": "22",
                         "SourceSecurityGroupId": {
-                            "Ref": "sg_bastion"
+                            "Ref": "sgBastion"
                         }
                     },
                     {
@@ -61,7 +67,7 @@
                         "FromPort": "8",
                         "ToPort": "-1",
                         "SourceSecurityGroupId": {
-                            "Ref": "sg_bastion"
+                            "Ref": "sgBastion"
                         }
                     },
                     {
@@ -78,7 +84,7 @@
                     }
                 ],
                 "VpcId": {
-                    "Ref": "vpc"
+                    "Ref": "vpcManagement"
                 },
                 "Tags": [
                     [
@@ -90,22 +96,22 @@
         }
     },
     "Outputs": {
-        "vpc_management_id": {
+        "vpcManagementId": {
             "Description": "management vpc id",
             "Value": {
-                "Ref": "vpc_management"
+                "Ref": "vpcManagement"
             }
         },
-        "sg_web_id": {
+        "sgWebId": {
             "Description": "web security group id",
             "Value": {
-                "Ref": "sg_web"
+                "Ref": "sgWeb"
             }
         },
-        "sg_bastion_id": {
+        "sgBastionId": {
             "Description": "bastion security group id",
             "Value": {
-                "Ref": "sg_bastion"
+                "Ref": "sgBastion"
             }
         }
     }
