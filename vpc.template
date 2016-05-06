@@ -17,8 +17,10 @@
                     "Ref": "addressBlock"
                 },
                 "Tags": [
-                    "vpc",
-                    "networking"
+                {
+                    "Key": "role",
+                    "Value": "networking"
+                }
                 ]
             }
         },
@@ -44,8 +46,10 @@
                     "Ref": "vpcManagement"
                 },
                 "Tags": [
-                    "vpc",
-                    "ssh"
+                {
+                  "Key": "role",
+                  "Value": "networking"
+                }
                 ]
             }
         },
@@ -88,8 +92,10 @@
                 },
                 "Tags": [
                     [
-                        "vpc",
-                        "ssh"
+                    {
+                      "Key": "role",
+                      "Value": "networking"
+                    }
                     ]
                 ]
             }
