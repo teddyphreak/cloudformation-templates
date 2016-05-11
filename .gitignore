@@ -4,3 +4,6 @@
 
 ### Vim
 **/*.swp
+
+### Ruby
+Gemfile.lock
