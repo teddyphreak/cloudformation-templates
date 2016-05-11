@@ -5,8 +5,21 @@ machine:
     version: 2.2.4
     
 dependencies:
+  pre:
+    # https://discuss.circleci.com/t/bundler-fails-to-find-appropriate-version-despite-installing-appropriate-version-earlier-in-the-build/2815/30
+    - gem -v
+    - rvm @global do gem uninstall bundler -ax
+    - rvm install rubygems 2.4.8 --force
+    - gem install bundler --pre
+    - bundle -v
   override:
     - sudo apt-get install -y awscli
+
+test:
+	override:
+    - bundle -v
+    - bundle exec bundle -v
+		- bundle exec cucumber --format json
   
 deployment:
   production:
