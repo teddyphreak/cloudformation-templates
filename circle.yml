@@ -1,15 +1,13 @@
 machine:
   timezone:
     America/Costa_Rica
+  ruby: 
+    version: 2.2.4
     
 dependencies:
   override:
     - sudo apt-get install -y awscli
   
-test:
-  override:
-    - cucumber
-    
 deployment:
   production:
     branch: master
