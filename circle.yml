@@ -16,7 +16,7 @@ dependencies:
     - sudo apt-get install -y awscli
 
 test:
-	override:
+  override:
     - bundle -v
     - bundle exec bundle -v
 		- bundle exec cucumber --format json
