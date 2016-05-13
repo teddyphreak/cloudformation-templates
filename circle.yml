@@ -12,6 +12,7 @@ dependencies:
     - rvm install rubygems 2.4.8 --force
     - gem install bundler --pre
     - bundle -v
+    - bundle install
   override:
     - sudo apt-get install -y awscli
 
