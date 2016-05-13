@@ -2,7 +2,7 @@ Given(/^template "([^"]*)"$/) do |input|
   @template_body = File.read(input)
 end
 
-When(/^the template is deployed with stack name "([^"]*)"$/) do |stack_name|
+When(/^the template is deployed with stack name )"([^"]*)"$/) do |stack_name|
   test_regions = ['us-east-1']
   @error = ""
   @start,@complete,@status = false, false, false
@@ -34,10 +34,10 @@ When(/^the template is deployed with stack name "([^"]*)"$/) do |stack_name|
 end
 
 Then(/^aws cloudformation create\-stack should succeed$/) do
-  expect(@success.all?).to be true
-  expect(@error).to eq("")
   expect(@start).to be true
   expect(@complete).to be true
   expect(@status).to be true
+  expect(@error).to eq("")
+  expect(@success.all?).to be true
 end
 
