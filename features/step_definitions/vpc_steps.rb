@@ -31,6 +31,6 @@ end
 
 Then(/^aws cloudformation create\-stack should succeed$/) do
   expect(@success.all?).to be true
-  expect(@error).not_to eq("")
+  expect(@error).to eq("")
 end
 
