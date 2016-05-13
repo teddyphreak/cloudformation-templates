@@ -4,6 +4,7 @@ end
 
 When(/^the template is deployed with stack name "([^"]*)"$/) do |stack_name|
   test_regions = ['us-east-1']
+  @error = ""
   @success = 
     Aws.partition('aws').regions.
     reject  { |r| !test_regions.include?(r.name)  }.
@@ -18,8 +19,9 @@ When(/^the template is deployed with stack name "([^"]*)"$/) do |stack_name|
         })
         cloudformation.wait_until(:stack_create_complete, { stack_name: stack_name })
         cloudformation.describe_stacks({ stack_name: stack_name }).stacks[0].stack_status == 'CREATE_COMPLETE'
-      rescue
+      rescue Exception => e
         false
+        @error = e.message
       ensure 
         cloudformation.delete_stack({stack_name: stack_name})
       end
@@ -29,5 +31,6 @@ end
 
 Then(/^aws cloudformation create\-stack should succeed$/) do
   expect(@success.all?).to be true
+  expect(@error).to be ""
 end
 
