@@ -1,7 +1,14 @@
+<p align="center">
 #Cloudformation Templates
+</p>
+<p align="center">
+[![CircleCI](https://circleci.com/gh/teddyphreak/cloudformation-templates.svg?style=svg)](https://circleci.com/gh/teddyphreak/cloudformation-templates)
+</p>
 
-Sample cloudformation templates for internal projects
+Sample cloudformation templates for personal projects
 
 ## TODO
 
-Evaluate possible testing strategies beyond simple syntax checking
+* Investigate possible alternatives to raw json template authoring
+
+
