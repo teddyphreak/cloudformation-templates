@@ -2,7 +2,7 @@ Given(/^template "([^"]*)"$/) do |input|
   @template_body = File.read(input)
 end
 
-When(/^the template is deployed with stack name )"([^"]*)"$/) do |stack_name|
+When(/^the template is deployed with stack name "([^"]*)"$/) do |stack_name|
   test_regions = ['us-east-1']
   @error = ""
   @start,@complete,@status = false, false, false
