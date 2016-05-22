@@ -2,7 +2,7 @@ machine:
   timezone:
     America/Costa_Rica
   ruby: 
-    version: 2.2.4
+    version: 2.2.5
     
 dependencies:
   pre:
