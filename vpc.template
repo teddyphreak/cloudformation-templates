@@ -1,122 +1,171 @@
 {
-    "AWSTemplateFormatVersion": "2010-09-09",
+  "AWSTemplateFormatVersion": "2010-09-09",
     "Description": "vpc template",
     "Metadata": {},
     "Parameters": {        
-        "addressBlock": {
-            "Description": "management address block",
-            "Type": "String",
-            "Default": "172.16.0.0/24"
-        }
+      "serverAccess" : {
+        "Description" : "CIDR IP range allowed to login to the NAT instance",
+        "Type" : "String",
+        "MinLength": "9",
+        "MaxLength": "18",
+        "Default" : "0.0.0.0/0",
+        "AllowedPattern" : "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+        "ConstraintDescription" : "must be a valid CIDR range of the form x.x.x.x/x."
+      }
+    },
+    "Mappings": {
+      "SubnetMap": {
+        "VPC": { "CIDR": "172.16.0.0/22" },
+        "A": { "CIDR": "172.16.0.0/24" },
+        "B": { "CIDR": "172.16.1.0/24" },
+        "C": { "CIDR": "172.16.2.0/24" }
+      }
     },
     "Resources": {
-        "vpc": {
-            "Type": "AWS::EC2::VPC",
-            "Properties": {
-                "CidrBlock": {
-                    "Ref": "addressBlock"
-                },
-                "Tags": [
-                {
-                    "Key": "role",
-                    "Value": "networking"
-                }
-                ]
-            }
-        },
-        "sgBastion": {
-            "Type": "AWS::EC2::SecurityGroup",
-            "Properties": {
-                "GroupDescription": "-",
-                "SecurityGroupIngress": [
-                    {
-                        "IpProtocol": "tcp",
-                        "CidrIp": "0.0.0.0/0",
-                        "FromPort": "22",
-                        "ToPort": "22"
-                    },
-                    {
-                        "IpProtocol": "icmp",
-                        "CidrIp": "0.0.0.0/0",
-                        "FromPort": "8",
-                        "ToPort": "-1"
-                    }
-                ],
-                "VpcId": {
-                    "Ref": "vpc"
-                },
-                "Tags": [
-                {
-                  "Key": "role",
-                  "Value": "networking"
-                }
-                ]
-            }
-        },
-        "sgWeb": {
-            "Type": "AWS::EC2::SecurityGroup",
-            "Properties": {
-                "GroupDescription": "-",
-                "SecurityGroupIngress": [
-                    {
-                        "IpProtocol": "tcp",
-                        "FromPort": "22",
-                        "ToPort": "22",
-                        "SourceSecurityGroupId": {
-                            "Ref": "sgBastion"
-                        }
-                    },
-                    {
-                        "IpProtocol": "icmp",
-                        "FromPort": "8",
-                        "ToPort": "-1",
-                        "SourceSecurityGroupId": {
-                            "Ref": "sgBastion"
-                        }
-                    },
-                    {
-                        "IpProtocol": "tcp",
-                        "FromPort": "80",
-                        "ToPort": "80",
-                        "CidrIp": "0.0.0.0/0"
-                    },
-                    {
-                        "IpProtocol": "tcp",
-                        "FromPort": "443",
-                        "ToPort": "443",
-                        "CidrIp": "0.0.0.0/0"
-                    }
-                ],
-                "VpcId": {
-                    "Ref": "vpc"
-                },
-                "Tags": [
-                    {
-                      "Key": "role",
-                      "Value": "networking"
-                    }
-                ]
-            }
+      "vpc": {
+        "Type": "AWS::EC2::VPC",
+        "Properties": {
+          "CidrBlock": { "Fn::FindInMap" : [ "SubnetMap", "VPC", "CIDR" ] },
+          "Tags": [
+          {
+            "Key": "role",
+            "Value": "networking"
+          }
+          ]
         }
+      },
+      "subnetA": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "VpcId": { "Ref": "vpc" },
+          "CidrBlock": { "Fn::FindInMap" : [ "SubnetMap", "A", "CIDR" ]},
+          "Tags": [
+          {
+            "Key": "role",
+            "Value": "networking"
+          }
+          ]
+        }
+      },
+      "subnetB": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "VpcId": { "Ref": "vpc" },
+          "CidrBlock": { "Fn::FindInMap" : [ "SubnetMap", "B", "CIDR" ]},
+          "Tags": [
+          {
+            "Key": "role",
+            "Value": "networking"
+          }
+          ]
+        }
+      },
+      "subnetC": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "VpcId": { "Ref": "vpc" },
+          "CidrBlock": { "Fn::FindInMap" : [ "SubnetMap", "C", "CIDR" ]},
+          "Tags": [
+          {
+            "Key": "role",
+            "Value": "networking"
+          }
+          ]
+        }
+      },
+      "sgBastion": {
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+          "GroupDescription": "-",
+          "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "CidrIp": { "Ref": "serverAccess" },
+            "FromPort": "22",
+            "ToPort": "22"
+          },
+          {
+            "IpProtocol": "icmp",
+            "CidrIp": { "Ref": "serverAccess" },
+            "FromPort": "8",
+            "ToPort": "-1"
+          }
+          ],
+          "VpcId": {
+            "Ref": "vpc"
+          },
+          "Tags": [
+          {
+            "Key": "role",
+            "Value": "networking"
+          }
+          ]
+        }
+      },
+      "sgWeb": {
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+          "GroupDescription": "-",
+          "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "SourceSecurityGroupId": {
+              "Ref": "sgBastion"
+            }
+          },
+          {
+            "IpProtocol": "icmp",
+            "FromPort": "8",
+            "ToPort": "-1",
+            "SourceSecurityGroupId": {
+              "Ref": "sgBastion"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "80",
+            "ToPort": "80",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "443",
+            "ToPort": "443",
+            "CidrIp": "0.0.0.0/0"
+          }
+          ],
+          "VpcId": {
+            "Ref": "vpc"
+          },
+          "Tags": [
+          {
+            "Key": "role",
+            "Value": "networking"
+          }
+          ]
+        }
+      }
     },
     "Outputs": {
-        "vpcId": {
-            "Description": "management vpc id",
-            "Value": {
-                "Ref": "vpc"
-            }
-        },
-        "sgWebId": {
-            "Description": "web security group id",
-            "Value": {
-                "Ref": "sgWeb"
-            }
-        },
-        "sgBastionId": {
-            "Description": "bastion security group id",
-            "Value": {
-                "Ref": "sgBastion"
-            }
+      "vpcId": {
+        "Description": "management vpc id",
+        "Value": {
+          "Ref": "vpc"
         }
+      },
+      "sgWebId": {
+        "Description": "web security group id",
+        "Value": {
+          "Ref": "sgWeb"
+        }
+      },
+      "sgBastionId": {
+        "Description": "bastion security group id",
+        "Value": {
+          "Ref": "sgBastion"
+        }
+      }
     }
 }
