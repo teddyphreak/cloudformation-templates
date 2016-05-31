@@ -18,7 +18,7 @@ test:
   override:
     - bundle -v
     - bundle exec bundle -v
-    - bundle exec cucumber --format json
+    - bundle exec rake 
   
 deployment:
   production:

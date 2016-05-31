@@ -1,8 +1,10 @@
 source 'https://rubygems.org'
 
+gem 'rake'
+gem 'bundler'
+gem 'cfndsl'
+
 group :test do
-  gem 'rake'
-  gem 'bundler'
   gem 'cucumber'
   gem 'rspec-expectations'
   gem 'aws-sdk'

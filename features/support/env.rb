@@ -20,7 +20,7 @@ def aws_test_regions(test_regions=['us-east-1'])
   end
 end
 
-def create_stack(name, body)
+def create_stack(name, body, cleanup = true)
   aws_test_regions do |region|
     cloudformation = Aws::CloudFormation::Client.new(region: region)
     begin
@@ -38,9 +38,13 @@ def create_stack(name, body)
     rescue Exception => e
       e.message
     ensure 
-      cloudformation.delete_stack({stack_name: name})
+      cloudformation.delete_stack({stack_name: name}) if cleanup
     end
   end
+end
+
+def deploy_stack(name, file)
+  create_stack(name, File.read(file), false)
 end
 
 def validate_template(body)

@@ -7,3 +7,6 @@
 
 ### Ruby
 Gemfile.lock
+
+### Templates
+*.json
