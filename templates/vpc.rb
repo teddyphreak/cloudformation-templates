@@ -2,7 +2,7 @@ CloudFormation {
 
   Description("vpc template")
 
-  Parameter("serverAccess") {
+  Parameter(:serverAccess) {
     Type("String")
     Default("0.0.0.0/0")
     MinLength(9)
@@ -11,46 +11,76 @@ CloudFormation {
     ConstraintDescription("must be a valid CIDR range of the form x.x.x.x/x.")
   }
 
-  Mapping("subnetMap", {
+  Mapping(:subnetMap, {
     :VPC => { :CIDR => "172.16.0.0/22" },
     :A   => { :CIDR => "172.16.0.0/24" },
     :B   => { :CIDR => "172.16.1.0/24" },
     :C   => { :CIDR => "172.16.2.0/24" }
   })
 
-  Output(:vpcId, Ref("vpc"))
-  Output(:sgWebId, Ref("sgWeb"))
-  Output(:sgBastionId, Ref("sgBastion"))
+  Output(:vpcId, Ref(:vpc))
+  Output(:sgWebId, Ref(:sgWeb))
+  Output(:sgBastionId, Ref(:sgBastion))
 
-  EC2_VPC("vpc") {
-    CidrBlock(FnFindInMap("subnetMap", "VPC", "CIDR"))
+  EC2_VPC(:vpc) {
+    CidrBlock(FnFindInMap(:subnetMap, :VPC, :CIDR))
+    addTag(:role, "networking")
+  }
+  
+  EC2_InternetGateway(:internetGateway) {
     addTag(:role, "networking")
   }
 
-  [:A, :B, :C].each do |subnet|
-    EC2_Subnet("subnet#{subnet}") {
-      VpcId(Ref("vpc"))
-      CidrBlock(FnFindInMap("subnetMap", subnet, "CIDR"))
+  EC2_VPCGatewayAttachment(:internetGatewayAttachment) {
+    VpcId(Ref(:vpc))
+    InternetGatewayId(Ref(:internetGateway))
+  }
+
+  [:A, :B, :C].each do |x|
+    subnet = "subnet#{x}"
+    subnetGateway = "#{subnet}Gateway"
+    routeTable = "routeTable#{x}"
+    routeTableAssoc = "#{subnet}#{routeTable}"
+    
+    EC2_Subnet(subnet) {
+      VpcId(Ref(:vpc))
+      CidrBlock(FnFindInMap(:subnetMap, x, "CIDR"))
       addTag(:role, "networking")
+    }
+
+    EC2_RouteTable(routeTable) {
+      VpcId(Ref(:vpc))
+      addTag(:role, "networking")
+    }
+
+    EC2_SubnetRouteTableAssociation(routeTableAssoc) {
+      SubnetId(Ref(subnet))
+      RouteTableId(Ref(routeTable))
+    }
+
+    EC2_Route(subnetGateway) {
+      DependsOn(:internetGateway)
+      RouteTableId(Ref(routeTable))
+      DestinationCidrBlock("0.0.0.0/0")
+      GatewayId(Ref(:internetGateway))
     }
   end
 
-  EC2_SecurityGroup("sgBastion") {
+  EC2_SecurityGroup(:sgBastion) {
     GroupDescription("security group for admin access")
-    VpcId(Ref("vpc"))
+    VpcId(Ref(:vpc))
     addTag(:role, "networking")
     SecurityGroupIngress(
       [
-        { "IpProtocol" => "tcp", "FromPort" => 22, "ToPort" => 22, "CidrIp" => Ref("serverAccess") },
-        { "IpProtocol" => "icmp", "FromPort" => 8, "ToPort" => "-1", "CidrIp" => Ref("serverAccess") },
+        { "IpProtocol" => "tcp", "FromPort" => 22, "ToPort" => 22, "CidrIp" => Ref(:serverAccess) },
+        { "IpProtocol" => "icmp", "FromPort" => 8, "ToPort" => "-1", "CidrIp" => Ref(:serverAccess) },
       ]
     )
-    SecurityGroupEgress([])
   }
 
-  EC2_SecurityGroup("sgWeb") {
+  EC2_SecurityGroup(:sgWeb) {
     GroupDescription("security group for web access")
-    VpcId(Ref("vpc"))
+    VpcId(Ref(:vpc))
     addTag(:role, "networking")
     SecurityGroupIngress(
       [
@@ -61,5 +91,7 @@ CloudFormation {
       ]
     )
   }
+
+
 
 }
