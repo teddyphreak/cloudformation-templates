@@ -36,33 +36,31 @@ CloudFormation {
     InternetGatewayId(Ref(:internetGateway))
   }
 
+  EC2_RouteTable(:routeTable) {
+    VpcId(Ref(:vpc))
+    addTag(:role, "networking")
+  }
+
+  EC2_Route(:defaultRoute) {
+    DependsOn(:internetGateway)
+    RouteTableId(Ref(:routeTable))
+    DestinationCidrBlock("0.0.0.0/0")
+    GatewayId(Ref(:internetGateway))
+  }
+
   [:A, :B, :C].each do |x|
     subnet = "subnet#{x}"
-    subnetGateway = "#{subnet}Gateway"
-    routeTable = "routeTable#{x}"
-    routeTableAssoc = "#{subnet}#{routeTable}"
-    
+    routeTableAssoc = "#{subnet}RouteTable"
+
     EC2_Subnet(subnet) {
       VpcId(Ref(:vpc))
       CidrBlock(FnFindInMap(:subnetMap, x, "CIDR"))
       addTag(:role, "networking")
     }
 
-    EC2_RouteTable(routeTable) {
-      VpcId(Ref(:vpc))
-      addTag(:role, "networking")
-    }
-
     EC2_SubnetRouteTableAssociation(routeTableAssoc) {
       SubnetId(Ref(subnet))
-      RouteTableId(Ref(routeTable))
-    }
-
-    EC2_Route(subnetGateway) {
-      DependsOn(:internetGateway)
-      RouteTableId(Ref(routeTable))
-      DestinationCidrBlock("0.0.0.0/0")
-      GatewayId(Ref(:internetGateway))
+      RouteTableId(Ref(:routeTable))
     }
   end
 
@@ -91,7 +89,5 @@ CloudFormation {
       ]
     )
   }
-
-
 
 }
