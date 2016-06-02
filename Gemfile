@@ -4,6 +4,7 @@ gem 'rake'
 gem 'bundler'
 gem 'cfndsl'
 gem 'recursive-open-struct'
+gem 'ipaddress'
 
 group :test do
   gem 'cucumber'
