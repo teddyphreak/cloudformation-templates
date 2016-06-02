@@ -7,5 +7,5 @@ Then(/^aws cloudformation validate\-template should succeed$/) do
 end
 
 Then(/^aws cloudformation create\-stack should succeed$/) do
-  expect(test_stack('test-vpc', @template)).to eq(['CREATE_COMPLETE'])
+  expect( test_stack('test-vpc', @template)).to eq(['CREATE_COMPLETE'] )
 end

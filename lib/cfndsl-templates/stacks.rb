@@ -1,7 +1,7 @@
 require 'aws-sdk'
 
 def with_stack(name, body, cleanup = true)
-  aws_test_regions do |region|
+  aws_test_region_names do |region|
     cloudformation = Aws::CloudFormation::Client.new(region: region)
     begin
       id = cloudformation.create_stack({

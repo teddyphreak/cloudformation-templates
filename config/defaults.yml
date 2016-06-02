@@ -2,3 +2,6 @@
 test: 
   regions:
     - us-east-1
+networks:
+  vpc: '172.16.0.0/16'
+

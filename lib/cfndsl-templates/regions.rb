@@ -3,21 +3,27 @@ require 'aws-sdk'
 require_relative 'defaults'
 
 def aws_regions
-  regions = Aws.partition('aws').regions.
-    collect { |r| r.name }
+  Aws.partition('aws').regions .collect { |r| yield r }
+end
+
+def aws_region_names
   if block_given?
-    regions.collect { |r| yield r }
+    aws_regions { |r| yield r.name }
   else
-    regions 
+    aws_regions.collect { |r| r.name }
   end
 end
 
-def aws_test_regions(test_regions=defaults.test.regions)
-  regions = aws_regions.
-    reject  { |r| !test_regions.include?(r)  }
+def aws_test_regions
+  (aws_regions { |r| r })
+    .reject { |r| !aws_test_region_names.include?(r.name) }
+    .collect { |r| yield r }
+end
+
+def aws_test_region_names(test_regions=defaults.test.regions)
   if block_given?
-    regions.collect { |r| yield r }
+    test_regions.collect { |r| yield r }
   else
-    regions
+    test_regions
   end
 end
