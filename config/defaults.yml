@@ -3,5 +3,13 @@ test:
   regions:
     - us-east-1
 networks:
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
   vpc: '172.16.0.0/16'
 
+=======
+  range: 172.16.0.0/16
+>>>>>>> Stashed changes
+=======
+  range: 172.16.0.0/16
+>>>>>>> Stashed changes
